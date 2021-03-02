@@ -1,34 +1,26 @@
-#! python3
-# -*- coding: utf-8 -*-
-
+#Part6
+import pyperclip
+import docx
 import glob
 import re
 from collections import deque
+import os, time
+import random
 
-token_re = re.compile(r'([一-鿐]+[A-Za-z][0-9A-Za-z_]*|[\u30A1-\u30FF]+)')
-token_pos = {}
+#ファイルの中身を取得する
+def get_text(fname):
+    doc = docx.Document(fname)
+    full_text = []
+    for para in doc.paragraphs:
+        full_text.append(para.text)
+    return '\n'.join(full_text)
 
-for fname in glob.glob('ch*md'):
-    print(fname)
-    with open(fname, 'r', encoding='utf-8') as f:
-        n = 0
-        for line in f:
-            n += 1
-            if  line.startswitch('> ■'):
-                continue
-            tokens = token_re.findall(line)
-            for t in tokens:
-                token_pos.setdefault(t,[])
-                token_pos[t].append(fname + ':' + str(n))
-                
-last_tokens = deque([('', 0)] * 3)
-def p_and_print(t, length):
-    last_tokens.popleft()
-    last_tokens.append((t, length))
-    if last_tokens[1][1] == 1:
-        t1 = last_tokens[1][0]
-        print(t1 + ',' + str(token_pos[t1][0]), end=',')
-        print(str(last_tokens[0]) + ',' + str(last_tokens[2]))
-    
-for t in sorted(token_pos.keys()):
-    p_and_print(t, len(token_pos[t]))
+#既存の記事に対して、リライトしたテキストをドキュメントに挿入
+def insert_text():
+    for fname in glob.glob('lafool*.docx'):
+        q = get_text(fname)
+        res = q.replace('一つ目','1つ目').replace('繋がる','つながる').replace('たとえば','例えば').replace('わかる','分かる').replace('〜の一つ','〜のひとつ').replace('取組み','取り組み')
+        newdoc = docx.Document(fname)
+        newdoc.add_paragraph(res)
+        print(newdoc.add_paragraph(res))
+        newdoc.save(fname)
